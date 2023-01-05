@@ -8,11 +8,13 @@
 </head>
 <body>
     <h1>Вот сюда кидай все свои файлы</h1>
-
+    <h2>Мы принимаем только .mp3 и .wav</h2>
+    <h4>Есть ещё кое-что, но это для чересчур одарённых, а они придут к этому сами.</h4><i>Qui quaerit, reperit </i><br><br>
     <form method='POST' enctype='multipart/form-data'>
         {{form.hidden_tag()}}
         {{form.file()}}
         {{form.submit()}}
     </form>
+    {{args}}
 </body>
 </html>
