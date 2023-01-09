@@ -2,7 +2,7 @@ from flask import Flask, render_template
 from flask_wtf import FlaskForm
 from wtforms import FileField, SubmitField
 from werkzeug.utils import secure_filename
-import os, filetype, yadisk
+import os, filetype, yadisk, time
 from private.config import token as TOKEN
 
 app = Flask(__name__)
@@ -31,8 +31,18 @@ def home():
         if filetype.guess(file).extension != '' and filetype.guess(file).extension in allowed_extensions:
             file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)),app.config['UPLOAD_FOLDER'],file.filename))
             y = yadisk.YaDisk(token=TOKEN)
-            y.upload(file, 'app:/'+str(file.filename))
-            args="Жесть, ты только что загрузил(а) свой файл!\nИ даже без без флешки, прикинь"
+            filelist=list(y.listdir('app:/'))
+            sflist = [sub['name'] for sub in filelist]
+            if str(file.filename) in sflist:
+                args='У нас такое уже есть, но мы сохранили снова, не благодари ;)'
+                file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)),app.config['UPLOAD_FOLDER'],str(file.filename[:-4])+' '+str(int(time.time()))+str(file.filename[-4:])))
+                y.upload(file, 'app:/'+str(file.filename[:-4])+' '+str(int(time.time()))+str(file.filename[-4:]))
+
+
+            else:
+                args=file.filename+' '
+            #y.upload(file, 'app:/'+str(file.filename))
+            #args="Жесть, ты только что загрузил(а) свой файл!\nИ даже без без флешки, прикинь"
         else:
             args="Что-то пошло не так, братишка/сестричка"
     return render_template('index.html', form=form, args=args)
